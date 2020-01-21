@@ -57,7 +57,7 @@ IMPORTANT! PYTHONIOENCODING=UTF-8 environment should be set in your
 Xwindow environment scripts if python2.7 in your distro somehow is
 not locale.utf8 -aware yet. It happens but I won't investigate this.
 
-Config is kept in the $HOME/.config/terminator/config92 file — so 1.92beta
+Config is kept in the $HOME/.config/terminator/config92 file — so 1.92
 should not mess your 1.91 config. You may copy of config to config92 to 
 pick up your colors and font (profiles). If a $XDG_CONFIG_HOME env variable
 is set, terminator respects it, so config files are to be found in the 

@@ -704,7 +704,7 @@ class ConfigBase(Borg):
 
         if self.command_line_options:
             if not self.command_line_options.config:
-                self.command_line_options.config = os.path.join(get_config_dir(), 'config')
+                self.command_line_options.config = os.path.join(get_config_dir(), 'config92')
             filename = self.command_line_options.config
         else:
             #filename = os.path.join(get_config_dir(), 'config')
