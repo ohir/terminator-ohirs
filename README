@@ -1,0 +1,91 @@
+Terminator
+by Chris Jones <cmsj@tenshu.net> and others. 
+
+   (See bottom note about current project state.)
+
+The goal of this project is to produce a useful tool for arranging terminals. 
+It is inspired by programs such as gnome-multi-term, quadkonsole, etc. in that
+the main focus is arranging terminals in grids (tabs is the most common default
+method, which Terminator also supports).
+
+When you run Terminator, you will get a terminal in a window, just like almost 
+every other terminal emulator available. There is also a titlebar which will
+update as shells/programs inside the terminal tell it to. Also on the titlebar
+is a small button that opens the grouping menu. From here you can put terminals
+into groups, which allows you to control multiple terminals simultaneously.
+
+You can create more terminals by right clicking on one and choosing to split 
+it vertically or horizontally. You can get rid of a terminal by right 
+clicking on it and choosing Close. Ctrl-Shift-o and Ctrl-Shift-e will also 
+effect the splitting.
+Also from the right mouse menu you can access Terminator's preferences window.
+
+Ctrl-Shift-n and Ctrl-Shift-p will Shift focus to the next/previous terminal 
+respectively, and Ctrl-Shift-w will close the current terminal and 
+Ctrl-Shift-q the current window.
+
+For more keyboard shortcuts and also the command line options, please see the
+manpage "terminator". For configuration options, see the manpage 
+"terminator_config".
+
+Ask questions at: https://answers.launchpad.net/terminator/
+Please report all bugs to https://bugs.launchpad.net/terminator/+filebug
+
+Terminator began by shamelessly copying code from the vte-demo.py in the vte 
+widget package, and the gedit terminal plugin (which was fantastically 
+useful at figuring out vte's API).
+
+vte-demo.py was not my code and is copyright its original author. While it 
+does not contain any specific licensing information in it, the VTE package 
+appears to be licenced under LGPL v2.
+
+The gedit terminal plugin is part of the gedit-plugins package, which is 
+licenced under GPL v2 or later.
+
+I am thus licensing Terminator as GPL v2 only.
+
+Cristian Grada provided the old icon under the same licence.
+Cory Kontros provided the new icon under the CC-by-SA licence.
+For other authorship information, see debian/copyright
+
+--- v1.92 by Ohir Ripe <ohir@fairbe.org> --------------------------
+
+IMPORTANT! This is still the python2 code. Some distros (eg. debian)
+patched Terminator-1.91 code for use with python3. The choice is yours.
+
+IMPORTANT! PYTHONIOENCODING=UTF-8 environment should be set in your
+Xwindow environment scripts if python2.7 in your distro somehow is
+not locale.utf8 -aware yet. It happens but I won't investigate this.
+
+Config is kept in the $HOME/.config/terminator/config92 file — so 1.92beta
+should not mess your 1.91 config. You may copy of config to config92 to 
+pick up your colors and font (profiles). If a $XDG_CONFIG_HOME env variable
+is set, terminator respects it, so config files are to be found in the 
+$XDG_CONFIG_HOME/terminator/ path.
+
+This package is a snapshot of my Terminator 1.92 development tree packaged
+with 1.91 translations and docs. There are neither translations nor docs
+for 1.92 yet. All new features are configurable in the prefseditor though
+and all have a tooltip explaining them. Development staled since I had all
+features I needed for daily work, but it is a high time to share my work.
+I hope someone will continue it.
+
+Beta Note: this version has many new features that I (ohir) deem
+essential, but it also has some old features (I deem dangerous) turned off.
+Most notable: all shortcuts for grouping terminals are removed from the
+default keybindings. Default colors are mine's, too. Straight off the past
+century. I have tested all features I personally use, but some old features
+I never used might have break.  If so - report it at
+https://github.com/ohir/terminator/issues
+
+TODO: 1st! remove configobj dependency. This thing is a huge pile of mess.
+
+  * Terminator's config code needs to be rewritten from the scratch.
+    Then you may delete some three hundreds of 'if xxx_has_key' clauses.
+  * Prefseditor should abandon changes on an escape or window close.
+    (Now it sets things immediately as you go).
+  * Sessions configuration should be written to separate files, while main
+    config should keep only defaults and color profiles.
+
+Enjoy!
+

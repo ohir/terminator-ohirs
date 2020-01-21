@@ -1,0 +1,22 @@
+In many themes notebook and tabs are way oversized for the terminator use
+It has been corrected for the Clearlooks theme. If you use other theme
+you need to edit css for your theme, ie. (before install) in the
+  YOURTHEMEname/gtk-3.0/apps/terminator_styling.css
+
+or (after install) in your home:
+  ~/.local/share/themes/yourTHEMEname/gtk-3.0/apps/terminator_styling.css
+
+As the Clearlooks theming is minimal, you may start wit straight copy of it:
+  cd ~/.local/share/themes   # or in other distros: cd ~/.themes
+
+  cp -r Clearlooks yourTHEMEname
+
+Then edit css files there. Remember that  ~/.local/share/themes/yourTHEMEname
+is searched first (by the GTK) and only then the newer ~/.themes directory is.
+
+Q: how to check your theme name from the console:
+
+A: (XFCE)  xfconf-query -c xsettings -p /Net/ThemeName
+A: (GNOME) gsettings get org.gnome.desktop.interface gtk-theme
+
+

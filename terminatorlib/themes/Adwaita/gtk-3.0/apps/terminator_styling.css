@@ -1,0 +1,25 @@
+/*
+ * Fix built-in Adwaita idiocy of minsizes.
+ * This file supports only top and bottom placement in LTR direction.
+ * Left/right and RTL are a mess too.
+ * The label text outset (move) on tab activate is intentional as some
+ * themes make border colors blend with background.
+ */
+notebook#TmNb > header { margin: -1px; padding: 0; }
+notebook#TmNb > header > tabs { padding: 0; border: none; }
+notebook#TmNb > header > tabs > tab {
+    padding: 2px 0px 2px 2px;
+    margin: 0px 0px 0px 4px;
+    min-width: 8px;
+    min-height: 8px;
+    border: 1px solid @border; 
+    border-width: 0 1px 0 0;
+    border-color: shade(@border, 0.8);
+    background-color: transparent;
+    background-image: linear-gradient(to bottom, @notebook_tab_bg_a, @notebook_tab_bg_b);
+}
+notebook#TmNb > header > tabs > tab:checked {
+    margin: 0px 4px 0px -2px;
+    border-width: 0 2px 0 2px;
+    background-image: none;
+}
