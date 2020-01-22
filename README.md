@@ -46,13 +46,29 @@ This repo contains Terminator in my (ohir's) version. It is based on v1.91 pytho
 
 #### whats broken
 
-  - plugins that read parent config may break due to the configfile keys changed.
-  - multiwindow layouts were NOT tested at all
-  - multiple layouts can not be loaded/changed on the fly (this never worked fully in upstream too).
-    > This can be remedied **only** by replacing all of the old config code.
-    > For now treat Terminator 1.92 as a single-layout — loading a session with chosen layout
-    > should work though. Configfile is simplified now - it is safe to edit and C&P parts
-    > from one layout to another.
+  - Plugins that read parent config may break due to the configfile keys changed.
+  - Multiwindow layouts were NOT tested at all
+  - manpages do not reflect option changes.
+
+#### whats deprecated
+
+  - Terminator 1.92.0 supports many layouts only via separate config files (-g config).
+    > The very concept that code must close terminals then reopens anew from other portion
+    > of the giant config is alien to me (ohir). This code is disabled now and will be removed.
+  - Panic key, aka hide window is disabled and will be removed. This is brittle code that does
+    not work as intended on most but gnome based window managers.
+    > Use your wm keybindings to manage window state, if you really need a panic key.
+  - Group-related shortcuts are removed from the default keybindings.
+    Groups and input cloning makes sense for a tiny fraction of power users only.
+    Ones that already know how to confingure then use keyboard driven groups. 
+
+#### roadmap (TODO for the future maintainer)
+
+  - [ ] remove window hidding code
+  - [ ] make -l option take short name to be expanded as $CONFIG_DIR/name.layout
+  - [ ] remove layouts list from the preferences window
+  - [ ] remove configobj dependency: make python3 config base first, then
+        port whole terminator to python3.
 
 ### appearance fix
 
