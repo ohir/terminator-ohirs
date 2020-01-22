@@ -69,6 +69,8 @@ This repo contains Terminator in my (ohir's) version. It is based on v1.91 pytho
   - [ ] remove layouts list from the preferences window
   - [ ] remove configobj dependency: make python3 config base first, then
         port whole terminator to python3.
+  - [ ] Add either profile chooser to the local menu
+  - [ ] or make per terminal preferences accessible from the local menu.
 
 ### appearance fix
 
