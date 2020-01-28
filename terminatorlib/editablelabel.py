@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# -*- coding: utf8 -*-
 # vim: tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 #
 # Copyright (c) 2009, Emmanuel Bretelle <chantra@debuntu.org>
@@ -32,7 +33,7 @@ class EditableLabel(Gtk.EventBox):
     _ebox = None
     _autotext = None
     _custom = None
-    _cutext = '' # this is edit base
+    _cutext = u'' # this is edit base
     _entry = None
     _entry_handler_id = None
 
@@ -156,7 +157,7 @@ class EditableLabel(Gtk.EventBox):
         label = self._label.get_text ()
         if entry == '':
             self._custom = False
-            self._cutext = ''
+            self._cutext = u''
             self.set_text (self._autotext)
         elif entry != label:
             self._custom = True

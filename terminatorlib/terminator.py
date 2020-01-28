@@ -269,7 +269,9 @@ class Terminator(Borg):
         self.last_active_window = None
         self.prelayout_windows = self.windows[:]
 
-        layout = copy.deepcopy(self.config.layout_get_config(layoutname))
+        #layout = copy.deepcopy(self.config.layout_get_config(layoutname))
+        layout = copy.deepcopy(self.config.layout_get_config('default'))
+        #layout = self.config.layout_get_config('default')
         if not layout:
             # User specified a non-existent layout. default to one Terminal
             err('layout %s not defined' % layout)
@@ -332,7 +334,7 @@ class Terminator(Borg):
             dbg('Creating a window')
             window, terminal = self.new_window()
             if layout[windef].has_key('position'):
-                parts = layout[windef]['position'].split(':')
+                parts = layout[windef]['position']
                 if len(parts) == 2:
                     window.move(int(parts[0]), int(parts[1]))
             if layout[windef].has_key('size'):

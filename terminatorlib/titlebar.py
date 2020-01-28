@@ -32,18 +32,18 @@ class Titlebar(Gtk.EventBox):
     grouplabel = None
     groupentry = None
     bellicon = None
-    _autotext = ''
-    _tsize = ''
-    _tabcapt = ''
-    sizetext = ''
+    _autotext = u''
+    _tsize = u''
+    _tabcapt = u''
+    sizetext = u''
     titlefixed = False # True # False
-    custom_title = '' # raw
-    _ctitle = '' # output
-    _ostitle = ''
-    custom_caption = ''
-    _tabcapt = ''
-    custom_env = ''
-    _custenv = ''
+    custom_title = u'' # raw
+    _ctitle = u'' # output
+    _ostitle = u''
+    custom_caption = u''
+    _tabcapt = u''
+    custom_env = u''
+    _custenv = u''
     hidesize = None
 
     __gsignals__ = {
@@ -239,8 +239,12 @@ class Titlebar(Gtk.EventBox):
         default_bg = False
 
         self.make_labeltext()
-        #self.label.set_text("%s%s%s%s%s" % (self._tabcapt, self._ctitle, self._custenv, self._autotext, self._tsize), force=True)
-        self.label.set_text("%s%s%s%s%s" % (self._custenv, self._tabcapt, self._ctitle, self._autotext, self._tsize), force=True)
+        #self.label.set_text("%s%s%s%s%s" % (self._custenv, self._tabcapt, self._ctitle, self._autotext, self._tsize), force=True)
+        self.label.set_text("%s%s%s%s%s" % (self._custenv.decode('utf-8'), \
+                                            self._tabcapt.decode('utf-8'), \
+                                            self._ctitle.decode('utf-8'), \
+                                            self._autotext.decode('utf-8'), \
+                                            self._tsize), force=True)
 
         if (not self.config['title_use_system_font']) and self.config['title_font']:
             title_font = Pango.FontDescription(self.config['title_font'])

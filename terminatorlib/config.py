@@ -19,55 +19,6 @@
 
 Classes relating to configuration
 
->>> DEFAULTS['global_config']['focus']
-'click'
->>> config = Config()
->>> config['focus'] = 'sloppy'
->>> config['focus']
-'sloppy'
->>> DEFAULTS['global_config']['focus']
-'click'
->>> config2 = Config()
->>> config2['focus']
-'sloppy'
->>> config2['focus'] = 'click'
->>> config2['focus']
-'click'
->>> config['focus']
-'click'
->>> config['geometry_hinting'].__class__.__name__
-'bool'
->>> plugintest = {}
->>> plugintest['foo'] = 'bar'
->>> config.plugin_set_config('testplugin', plugintest)
->>> config.plugin_get_config('testplugin')
-{'foo': 'bar'}
->>> config.plugin_get('testplugin', 'foo')
-'bar'
->>> config.plugin_get('testplugin', 'foo', 'new')
-'bar'
->>> config.plugin_get('testplugin', 'algo')
-Traceback (most recent call last):
-...
-KeyError: 'ConfigBase::get_item: unknown key algo'
->>> config.plugin_get('testplugin', 'algo', 1)
-1
->>> config.plugin_get('anothertestplugin', 'algo', 500)
-500
->>> config.get_profile()
-'default'
->>> config.set_profile('my_first_new_testing_profile')
->>> config.get_profile()
-'my_first_new_testing_profile'
->>> config.del_profile('my_first_new_testing_profile')
->>> config.get_profile()
-'default'
->>> config.list_profiles().__class__.__name__
-'list'
->>> config.options_set({})
->>> config.options_get()
-{}
->>>
 
 """
 
@@ -76,7 +27,7 @@ import os
 from copy import copy
 from borg import Borg
 from util import dbg, err, DEBUG, get_config_dir, dict_diff
-from oconf import fromfile, tofile, DEFAULTS
+from oconf import fromfile, tofile
 #import pout
 #pout.inject()
 from gi.repository import Gio
@@ -515,7 +466,7 @@ class ConfigBase(Borg):
         """Add a new profile"""
         if profile in self.profiles:
             return(False)
-        self.profiles[profile] = copy(DEFAULTS['profiles']['default'])
+        self.profiles[profile] = copy(self.profiles['default'])
         self._dirty = True
         return(True)
 
@@ -567,7 +518,7 @@ class ConfigBase(Borg):
     def get_defstub(self):
         r = {}
         cfgdef = {}
-        defdef = copy(DEFAULTS['layouts']['default']['NewT'])
+        defdef = copy(self.layouts['default']['NewT'])
         if self.layouts[self._curlayoutname].has_key('NewT'):
             cfgdef = self.layouts[self._curlayoutname]['NewT']
 
