@@ -24,7 +24,7 @@ Classes relating to configuration
 
 import platform
 import os
-from copy import copy
+from copy import copy, deepcopy
 from borg import Borg
 from util import dbg, err, DEBUG, get_config_dir, dict_diff
 from oconf import fromfile, tofile, getDEF
@@ -65,25 +65,6 @@ class Config(object):
             return "c%d" % Config.namenum
         else:
             return "c0%d" % Config.namenum
-
-### XXX New config methods go here #############################################
-
-    def n_get_session_layout(self):
-        return self.base.get_plugin()
-
-    def n_get_layout(self, name='session'):
-        if name in self.base.cfgdef['layouts']:
-            return self.base.cfgdef['layouts'][name]
-        if 'session' in self.base.cfgdef['layouts']:
-            dbg("No %s in layouts. Using 'session' instead" % name)
-            return self.base.cfgdef['layouts']['session']
-        if 'default' in self.base.cfgdef['layouts']:
-            dbg("No %s in layouts. No session too. Using 'default' instead" % name)
-            return self.base.cfgdef['layouts']['default']
-        raise KeyError("ConfigBase::n_get_layout: unknown layout %s" % name)
-
-
-################################################################################
 
     def get_profile(self):
         """Get our profile"""
@@ -550,3 +531,20 @@ class ConfigBase(Borg):
             else:
                 r[key] = value
         return r
+
+### XXX New methods go here #############################################
+
+    def n_get_layout(self, name='session'):
+        if name in self.cfgdict['layouts']:
+            return self.cfgdict['layouts'][name]
+        if 'session' in self.cfgdict['layouts']:
+            dbg("No %s in layouts. Using 'session' instead" % name)
+            return self.cfgdict['layouts']['session']
+        if 'default' in self.cfgdict['layouts']:
+            dbg("No %s in layouts. No session too. Using 'default' instead" % name)
+            return self.cfgdict['layouts']['default']
+        raise KeyError("ConfigBase::n_get_layout: unknown layout %s" % name)
+
+
+################################################################################
+

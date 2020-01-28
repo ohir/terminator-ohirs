@@ -4,7 +4,6 @@
 """terminator.py - class for the master Terminator singleton"""
 """Refactored for Terminator2 by Ohir Ripe <ohir@fairbe.org>"""
 
-import copy
 import os
 import gi
 gi.require_version('Gtk', '3.0')
@@ -21,6 +20,7 @@ from util import dbg, err, enumerate_descendants
 from factory import Factory
 from cwd import get_pid_cwd
 from version import APP_NAME, APP_VERSION
+from copy import copy, deepcopy
 #import pout
 #pout.inject()
 
@@ -269,9 +269,7 @@ class Terminator(Borg):
         self.last_active_window = None
         self.prelayout_windows = self.windows[:]
 
-        #layout = copy.deepcopy(self.config.layout_get_config(layoutname))
-        layout = copy.deepcopy(self.config.layout_get_config('default'))
-        layout = self.config.base.layout_get_config('session')
+        layout = deepcopy(self.config.base.n_get_layout(layoutname))
         if not layout:
             # User specified a non-existent layout. default to one Terminal
             err('layout %s not defined' % layout)
@@ -283,11 +281,11 @@ class Terminator(Borg):
         count = 0
         # Loop over the layout until we have consumed it, or hit 1000 loops.
         # This is a stupid artificial limit, but it's safe.
-        while len(layout) > 0 and count < 1000:
+        while len(layout) > 0 and count < 100:
             count = count + 1
-            if count == 1000:
+            if count == 100:
                 err('hit maximum loop boundary. THIS IS VERY LIKELY A BUG')
-                #pout.v(layout)
+                pout.v(layout)
 
             for obj in layout.keys():
                 # all other top-level keys need to be deleted
