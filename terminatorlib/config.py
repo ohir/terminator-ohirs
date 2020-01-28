@@ -27,9 +27,9 @@ import os
 from copy import copy
 from borg import Borg
 from util import dbg, err, DEBUG, get_config_dir, dict_diff
-from oconf import fromfile, tofile
-#import pout
-#pout.inject()
+from oconf import fromfile, tofile, getDEF
+import pout
+pout.inject()
 from gi.repository import Gio
 
 class Config(object):
@@ -65,6 +65,25 @@ class Config(object):
             return "c%d" % Config.namenum
         else:
             return "c0%d" % Config.namenum
+
+### XXX New config methods go here #############################################
+
+    def n_get_session_layout(self):
+        return self.base.get_plugin()
+
+    def n_get_layout(self, name='session'):
+        if name in self.base.cfgdef['layouts']:
+            return self.base.cfgdef['layouts'][name]
+        if 'session' in self.base.cfgdef['layouts']:
+            dbg("No %s in layouts. Using 'session' instead" % name)
+            return self.base.cfgdef['layouts']['session']
+        if 'default' in self.base.cfgdef['layouts']:
+            dbg("No %s in layouts. No session too. Using 'default' instead" % name)
+            return self.base.cfgdef['layouts']['default']
+        raise KeyError("ConfigBase::n_get_layout: unknown layout %s" % name)
+
+
+################################################################################
 
     def get_profile(self):
         """Get our profile"""
@@ -287,6 +306,7 @@ class ConfigBase(Borg):
     loaded = None
     whined = None
     cfgdict = None
+    tmDEF = None
     sections = None
     global_config = None
     profiles = None
@@ -319,6 +339,8 @@ class ConfigBase(Borg):
             self.whined = False
         if self.cfgdict is None:
             self.cfgdict = fromfile()
+        if self.tmDEF is None:
+            self.tmDEF = getDEF()
         ## keep this voodoo until bigger refactoring
         if self.global_config is None:
             self.global_config = self.cfgdict['global_config']
@@ -528,5 +550,3 @@ class ConfigBase(Borg):
             else:
                 r[key] = value
         return r
-
-

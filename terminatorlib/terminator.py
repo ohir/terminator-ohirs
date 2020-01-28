@@ -271,7 +271,7 @@ class Terminator(Borg):
 
         #layout = copy.deepcopy(self.config.layout_get_config(layoutname))
         layout = copy.deepcopy(self.config.layout_get_config('default'))
-        #layout = self.config.layout_get_config('default')
+        layout = self.config.base.layout_get_config('session')
         if not layout:
             # User specified a non-existent layout. default to one Terminal
             err('layout %s not defined' % layout)
