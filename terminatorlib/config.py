@@ -74,242 +74,12 @@ KeyError: 'ConfigBase::get_item: unknown key algo'
 import platform
 import os
 from copy import copy
-from configobj.configobj import ConfigObj, flatten_errors
-from configobj.validate import Validator
 from borg import Borg
 from util import dbg, err, DEBUG, get_config_dir, dict_diff
+from oconf import fromfile, tofile, DEFAULTS
 #import pout
 #pout.inject()
 from gi.repository import Gio
-
-DEFAULTS = {
-        'global_config':   {
-            'dbus'                  : False,
-            'focus'                 : 'click',
-            'handle_size'           : -1,
-            'geometry_hinting'      : False,
-            'window_state'          : 'normal',
-            'borderless'            : False,
-            'extra_styling'         : True,
-            'tabs_hidden'           : False,
-            'tab_position'          : 'bottom',
-            'broadcast_default'     : 'off',
-            'close_button_on_tab'   : False,
-            'hide_tabbar'           : False,
-            'scroll_tabbar'         : False,
-            'homogeneous_tabbar'    : True,
-            'hide_from_taskbar'     : False,
-            'always_on_top'         : False,
-            'hide_on_lose_focus'    : False,
-            'sticky'                : False,
-            'use_custom_url_handler': False,
-            'custom_url_handler'    : '',
-            'disable_real_transparency' : False,
-            'do_not_save_dotnew'    : True,
-            'title_hide_tabcaption' : True,
-            'title_hide_path'       : False,
-            'title_hide_userhost'   : False,
-            'title_hide_sizetext'   : False,
-            'title_transmit_bg_color' : '#3d4b05',
-            'title_transmit_fg_color' : '#edd400',
-            'title_receive_bg_color'  : '#204a87',
-            'title_receive_fg_color'  : '#fce94f',
-            'title_inactive_bg_color' : '#191d07',
-            'title_inactive_fg_color' : '#4e9a06',
-            'inactive_color_offset': 0.8,
-            'enabled_plugins'       : ['LaunchpadBugURLHandler',
-                                       'LaunchpadCodeURLHandler',
-                                       'APTURLHandler'],
-            #'suppress_multiple_term_dialog': False,
-            'suppress_multiple_term_dialog': True, # XXX DEBUG
-            'always_split_with_profile': True,
-            'title_use_system_font' : True,
-            'title_font'            : 'Sans 11',
-            'putty_paste_style'     : False,
-            'smart_copy'            : True,
-        },
-        'keybindings': {
-            'zoom_in'          : '<Control>plus',
-            'zoom_out'         : '<Control>minus',
-            'zoom_normal'      : '<Control>0',
-            'new_tab'          : '<Shift><Control>t',
-            'cycle_next'       : '<Control>Tab',
-            'cycle_prev'       : '<Shift><Control>Tab',
-            'go_next'          : '<Shift><Control>n',
-            'go_prev'          : '<Shift><Control>p',
-            'go_up'            : '<Alt>Up',
-            'go_down'          : '<Alt>Down',
-            'go_left'          : '<Alt>Left',
-            'go_right'         : '<Alt>Right',
-            'rotate_cw'        : '<Super>r',
-            'rotate_ccw'       : '<Super><Shift>r',
-            'split_horiz'      : '<Shift><Control>o',
-            'split_vert'       : '<Shift><Control>e',
-            'close_term'       : '<Shift><Control>w',
-            'copy'             : '<Shift><Control>c',
-            'paste'            : '<Shift><Control>v',
-            'toggle_scrollbar' : '<Shift><Control>s',
-            'search'           : '<Shift><Control>f',
-            'page_up'          : '',
-            'page_down'        : '',
-            'page_up_half'     : '',
-            'page_down_half'   : '',
-            'line_up'          : '',
-            'line_down'        : '',
-            'close_window'     : '<Shift><Control>q',
-            'resize_up'        : '<Shift><Control>Up',
-            'resize_down'      : '<Shift><Control>Down',
-            'resize_left'      : '<Shift><Control>Page_Up',
-            'resize_right'     : '<Shift><Control>Page_Down',
-            'move_tab_right'   : '<Shift><Control>Right',
-            'move_tab_left'    : '<Shift><Control>Left',
-            'toggle_zoom'      : '<Shift><Control>x',
-            'scaled_zoom'      : '<Shift><Control>z',
-            'next_tab'         : '<Control>Right',
-            'prev_tab'         : '<Control>Left',
-            'switch_to_tab_1'  : '',
-            'switch_to_tab_2'  : '',
-            'switch_to_tab_3'  : '',
-            'switch_to_tab_4'  : '',
-            'switch_to_tab_5'  : '',
-            'switch_to_tab_6'  : '',
-            'switch_to_tab_7'  : '',
-            'switch_to_tab_8'  : '',
-            'switch_to_tab_9'  : '',
-            'switch_to_tab_10' : '',
-            'full_screen'      : 'F11',
-            'reset'            : '<Shift><Control>r',
-            'reset_clear'      : '<Shift><Control>g',
-            #'hide_window'      : '<Shift><Control><Alt>a',
-            'hide_window'      : '',
-            # no group bindings, it can wreak havoc for user that does know
-            # nothing 'bout. One who uses grouping will re-bind by self.
-            #'group_all'        : '<Super>g',
-            #'group_all_toggle' : '',
-            #'ungroup_all'      : '<Shift><Super>g',
-            #'group_tab'        : '<Super>t',
-            #'group_tab_toggle' : '',
-            #'ungroup_tab'      : '<Shift><Super>t',
-            #'broadcast_group'  : '<Alt>g',
-            #'broadcast_all'    : '<Alt>a',
-            #'broadcast_off'    : '<Alt>o',
-            'group_all'        : '',
-            'group_all_toggle' : '',
-            'ungroup_all'      : '',
-            'group_tab'        : '',
-            'group_tab_toggle' : '',
-            'ungroup_tab'      : '',
-            'broadcast_group'  : '',
-            'broadcast_all'    : '',
-            'broadcast_off'    : '',
-            'insert_number'    : '<Super>1',
-            'insert_padded'    : '<Super>0',
-            'new_window'       : '<Shift><Control>i',
-            'new_terminator'   : '<Super>i',
-            'edit_window_title': '<Control><Alt>w',
-            'edit_tab_title'   : '<Control><Alt>a',
-            'hide_tab_bar'     : '<Control><Alt>t',
-            'edit_terminal_title': '<Control><Alt>x',
-            'layout_launcher'  : '<Alt>l',
-            'next_profile'     : '',
-            'previous_profile' : '',
-            'help'             : 'F1'
-        },
-        'profiles': {
-            'default':  {
-                'allow_bold'            : True,
-                'audible_bell'          : False,
-                'visible_bell'          : False,
-                'urgent_bell'           : False,
-                'icon_bell'             : True,
-                'background_color'      : '#191d07',
-                'background_darkness'   : 0.9,
-                'background_type'       : 'solid',
-                'backspace_binding'     : 'ascii-del',
-                'delete_binding'        : 'escape-sequence',
-                'color_scheme'          : 'grey_on_black',
-                'cursor_blink'          : True,
-                'cursor_shape'          : 'block',
-                'cursor_color'          : '#73d216',
-                'cursor_color_fg'       : True,
-                'term'                  : 'xterm-256color',
-                'colorterm'             : 'truecolor',
-                'font'                  : 'Source Code Pro 15',
-                'foreground_color'      : '#fce94f',
-                'show_titlebar'         : True,
-                'scrollbar_position'    : 'hidden',
-                'scroll_background'     : True,
-                'scroll_on_keystroke'   : True,
-                'scroll_on_output'      : False,
-                'scrollback_lines'      : 1000,
-                'scrollback_infinite'   : False,
-                'exit_action'           : 'close',
-                # no fancy palettes as default, please. Use math then let user fiddle.
-                'palette' : "#000000:#aa0000:#00aa00:#aa5500:#0000aa:#aa00aa:#00aaaa:#aaaaaa:#555555:#ff5555:#55ff55:#ffff55:#5555ff:#ff55ff:#55ffff:#ffffff",
-                'word_chars'            : '-,./?%&#:_',
-                'mouse_autohide'        : True,
-                'login_shell'           : False,
-                'use_custom_command'    : False,
-                'custom_command'        : '',
-                'use_system_font'       : True,
-                'use_theme_colors'      : False,
-                'encoding'              : 'UTF-8',
-                'active_encodings'      : ['UTF-8', 'ISO-8859-1'],
-                'focus_on_close'        : 'auto',
-                'force_no_bell'         : False,
-                'cycle_term_tab'        : True,
-                'copy_on_selection'     : False,
-                'rewrap_on_resize'      : True,
-                'split_to_group'        : False,
-                'autoclean_groups'      : True,
-                'http_proxy'            : '',
-                'ignore_hosts'          : ['localhost','127.0.0.0/8','*.local'],
-            },
-        },
-        'layouts': {
-                'default': {
-                    'NewT': {
-                        'parent': '',
-                        'type': 'Defstub',
-                        'caption': 'NC',
-                        'directory': '',
-                        '_lastwdir': '',
-                        'dirfixed': False,
-                        'title': '',
-                        'titlefixed': False,
-                        'term_env': '',
-                        'term_command': '',
-                        'profile': 'default',
-                        'histfile': '',
-                        '_histfile': '',
-                        'envfile': '',
-                        '_envfile': '',
-                        '_tabnext': 0,
-                    },
-                    'c00w': {
-                        'type': 'Window',
-                        'title': '',
-                        'parent': ''
-                        },
-                    'c01t': {
-                        'type': 'Terminal',
-                        'parent': 'c00w',
-                        'profile': 'default',
-                        'caption': '',
-                        'title': '',
-                        'titlefixed': False,
-                        'directory': '',
-                        'dirfixed': '',
-                        'term_env': '',
-                        'term_command': '',
-                        'histfile': '',
-                        'envfile': '',
-                        },
-                    }
-                },
-        'plugins': {
-        },
-}
 
 class Config(object):
     """Class to provide a slightly richer config API above ConfigBase"""
@@ -565,6 +335,7 @@ class ConfigBase(Borg):
     """Class to provide access to our user configuration"""
     loaded = None
     whined = None
+    cfgdict = None
     sections = None
     global_config = None
     profiles = None
@@ -595,22 +366,19 @@ class ConfigBase(Borg):
             self.loaded = False
         if self.whined is None:
             self.whined = False
-        if self.sections is None:
-            self.sections = ['global_config', 'keybindings', 'profiles',
-                             'layouts', 'plugins']
+        if self.cfgdict is None:
+            self.cfgdict = fromfile()
+        ## keep this voodoo until bigger refactoring
         if self.global_config is None:
-            self.global_config = copy(DEFAULTS['global_config'])
+            self.global_config = self.cfgdict['global_config']
         if self.profiles is None:
-            self.profiles = {}
-            self.profiles['default'] = copy(DEFAULTS['profiles']['default'])
+            self.profiles = self.cfgdict['profiles']
         if self.keybindings is None:
-            self.keybindings = copy(DEFAULTS['keybindings'])
+            self.keybindings = self.cfgdict['keybindings']
         if self.plugins is None:
             self.plugins = {}
         if self.layouts is None:
-            self.layouts = {}
-            for layout in DEFAULTS['layouts']:
-                self.layouts[layout] = copy(DEFAULTS['layouts'][layout])
+            self.layouts = self.cfgdict['layouts']
 
     # XXX prefseditor Cancel feature preparation
     def get_undo_tree(self):
@@ -618,83 +386,6 @@ class ConfigBase(Borg):
         for k in self.sections:
             r[k] = getattr(self, k)
         return r
-
-    # FIXME this all configspec thing needs to be purged off. No mere user
-    # run terminal under terminal to get a chance to read what this 'validator'
-    # whines about. Here already is DEFAULTS dict to get sane value from if the
-    # conf file lacks a key. An user who can do vim ~/.config/terminator/config
-    # will know what to do if she'd do a typo there. Mortals have prefseditor.
-    # This mess will stay for a while due to plugins and time. (ohir)
-    def defaults_to_configspec(self):
-        """Convert our tree of default values into a ConfigObj validation
-        specification"""
-        configspecdata = {}
-
-        keymap = {
-                'int': 'integer',
-                'str': 'string',
-                'bool': 'boolean',
-                }
-
-        section = {}
-        for key in DEFAULTS['global_config']:
-            keytype = DEFAULTS['global_config'][key].__class__.__name__
-            value = DEFAULTS['global_config'][key]
-            if keytype in keymap:
-                keytype = keymap[keytype]
-            elif keytype == 'list':
-                value = 'list(%s)' % ','.join(value)
-
-            keytype = '%s(default=%s)' % (keytype, value)
-
-            if key == 'custom_url_handler':
-                keytype = 'string(default="")'
-
-            section[key] = keytype
-        configspecdata['global_config'] = section
-
-        section = {}
-        for key in DEFAULTS['keybindings']:
-            value = DEFAULTS['keybindings'][key]
-            if value is None or value == '':
-                continue
-            section[key] = 'string(default=%s)' % value
-        configspecdata['keybindings'] = section
-
-        section = {}
-        for key in DEFAULTS['profiles']['default']:
-            keytype = DEFAULTS['profiles']['default'][key].__class__.__name__
-            value = DEFAULTS['profiles']['default'][key]
-            if keytype in keymap:
-                keytype = keymap[keytype]
-            elif keytype == 'list':
-                value = 'list(%s)' % ','.join(value)
-            if keytype == 'string':
-                value = '"%s"' % value
-
-            keytype = '%s(default=%s)' % (keytype, value)
-
-            section[key] = keytype
-        configspecdata['profiles'] = {}
-        configspecdata['profiles']['__many__'] = section
-
-        section = {}
-        section['type'] = 'string'
-        section['parent'] = 'string'
-        section['profile'] = 'string(default=default)'
-        section['position'] = 'string(default="")'
-        #section['size'] = 'list(default=list(-1,-1))'
-        #section['size'] = 'list'
-        configspecdata['layouts'] = {}
-        configspecdata['layouts']['__many__'] = {}
-        configspecdata['layouts']['__many__']['__many__'] = section
-
-        configspecdata['plugins'] = {}
-
-        configspec = ConfigObj(configspecdata)
-        if DEBUG == True:
-            configspec.write(open('/tmp/terminator_configspec_debug.txt', 'w'))
-        return(configspec)
 
     def load(self):
         """Load configuration data from our various sources"""
@@ -707,7 +398,6 @@ class ConfigBase(Borg):
                 self.command_line_options.config = os.path.join(get_config_dir(), 'config92')
             filename = self.command_line_options.config
         else:
-            #filename = os.path.join(get_config_dir(), 'config')
             filename = os.path.join(get_config_dir(), 'config92')
 
         dbg('looking for config file: %s' % filename)
@@ -721,68 +411,10 @@ class ConfigBase(Borg):
         # If we have successfully loaded a config, allow future whining
         self.whined = False
 
-        try:
-            configspec = self.defaults_to_configspec()
-            parser = ConfigObj(configfile, configspec=configspec)
-            validator = Validator()
-            result = parser.validate(validator, preserve_errors=True)
-        except Exception, ex:
-            err('Unable to load configuration: %s' % ex)
-            return
-
-        if result != True:
-            err('ConfigBase::load: config format is not valid')
-            for (section_list, key, _other) in flatten_errors(parser, result):
-                if key is not None:
-                    err('[%s]: %s is invalid' % (','.join(section_list), key))
-                else:
-                    err('[%s] missing' % ','.join(section_list))
-        else:
-            dbg('config validated successfully')
-
-        for section_name in self.sections:
-            dbg('ConfigBase::load: Processing section: %s' % section_name)
-            section = getattr(self, section_name)
-            if section_name == 'profiles':
-                for profile in parser[section_name]:
-                    dbg('ConfigBase::load: Processing profile: %s' % profile)
-                    if not section.has_key(section_name):
-                        # FIXME: Should this be outside the loop?
-                        section[profile] = copy(DEFAULTS['profiles']['default'])
-                    section[profile].update(parser[section_name][profile])
-            elif section_name == 'plugins':
-                if not parser.has_key(section_name):
-                    continue
-                for part in parser[section_name]:
-                    dbg('ConfigBase::load: Processing %s: %s' % (section_name,
-                                                                 part))
-                    section[part] = parser[section_name][part]
-            elif section_name == 'layouts':
-                for layout in parser[section_name]:
-                    dbg('ConfigBase::load: Processing %s: %s' % (section_name,
-                                                                 layout))
-                    if layout == 'default' and \
-                       parser[section_name][layout] == {}:
-                           continue
-                    section[layout] = parser[section_name][layout]
-            elif section_name == 'keybindings':
-                if not parser.has_key(section_name):
-                    continue
-                for part in parser[section_name]:
-                    dbg('ConfigBase::load: Processing %s: %s' % (section_name,
-                                                                 part))
-                    if parser[section_name][part] == 'None':
-                        section[part] = None
-                    else:
-                        section[part] = parser[section_name][part]
-            else:
-                try:
-                    section.update(parser[section_name])
-                except KeyError, ex:
-                    dbg('ConfigBase::load: skipping missing section %s' %
-                            section_name)
-
+        # we just defaults now in oconf
         self.loaded = True
+        return
+
 
     def reload(self):
         """Force a reload of the base config"""
@@ -793,6 +425,7 @@ class ConfigBase(Borg):
     # With SM it ultimateliy also ends with almost immediate disk write either
     # to gconf database or straight to the separate file in a SM cache. (ohir)
     def save(self, force=False):
+        return(True)
         """Save the config to a file"""
         if self._nosave:
             dbg('~ConfigBase::save: WRITE SUPRESSED')
@@ -807,62 +440,6 @@ class ConfigBase(Borg):
         dbg('~ConfigBase::save: WRITE CONFIG')
         self._dirty = False
 
-
-        # FIXME this craziness must be purged asap.
-        parser = ConfigObj()
-        parser.indent_type = '  '
-
-        for section_name in ['global_config', 'keybindings']:
-            dbg('ConfigBase::save: Processing section: %s' % section_name)
-            section = getattr(self, section_name)
-            parser[section_name] = dict_diff(DEFAULTS[section_name], section)
-
-        parser['profiles'] = {}
-        for profile in self.profiles:
-            dbg('ConfigBase::save: Processing profile: %s' % profile)
-            parser['profiles'][profile] = dict_diff(
-                    DEFAULTS['profiles']['default'], self.profiles[profile])
-
-        parser['layouts'] = {}
-        for layout in self.layouts:
-            dbg('ConfigBase::save: Processing layout: %s' % layout)
-            parser['layouts'][layout] = self.cleancfg(self.layouts[layout])
-
-        parser['plugins'] = {}
-        for plugin in self.plugins:
-            dbg('ConfigBase::save: Processing plugin: %s' % plugin)
-            parser['plugins'][plugin] = self.plugins[plugin]
-
-        config_dir = get_config_dir()
-        if not os.path.isdir(config_dir):
-            os.makedirs(config_dir)
-        try:
-            parser.write(open(self.command_line_options.config, 'w'))
-        except Exception, ex:
-            err('ConfigBase::save: Unable to save config: %s' % ex)
-
-        self._dirty = False
-
-    def cleancfg(self, indict):
-        """Make saved config tidy. Layout sections so far."""
-        oudict = {}
-        paned = indict.has_key('_inPaned') and indict['_inPaned']
-        for key,value in indict.iteritems():
-            if isinstance(value, dict):
-                oudict[key] = self.cleancfg(value)
-            elif key == 'parent':
-                oudict[key] = value
-            elif key == 'caption' and paned:
-                pass
-            elif not value or value == 'default':
-                pass
-            elif key[0] == '_':
-                pass
-            else:
-                oudict[key] = value
-        return oudict
-
-    #def layout_item_changed(self, who, key, value):
     def commit_layout_change(self, who, key, value):
         """Update, set dict as dirty"""
         if not self._curlayoutname:
