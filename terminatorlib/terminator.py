@@ -269,18 +269,33 @@ class Terminator(Borg):
         self.last_active_window = None
         self.prelayout_windows = self.windows[:]
 
-        layout = deepcopy(self.config.base.n_get_layout(layoutname))
+        # layout = deepcopy(self.config.base.n_get_layout(layoutname))
+        layout = self.config.base.n_inflate_layout(layoutname)
+        pout.v(layout)
+        dbg('--- ENDS HERE---')
+        sys.exit(1)
+
         if not layout:
             # User specified a non-existent layout. default to one Terminal
             err('layout %s not defined' % layout)
             self.new_window()
             return
 
+        # we must preserve this. Full tree could be written with oConf easily
+        # but such a config would be awkward to edit. Better preserve flattened
+        # config file and inflate it here
+        for chunk in layout.viewitems():
+            pass
+
+
+
+
         # Wind the flat objects into a hierarchy
         hierarchy = {}
         count = 0
         # Loop over the layout until we have consumed it, or hit 1000 loops.
         # This is a stupid artificial limit, but it's safe.
+
         while len(layout) > 0 and count < 100:
             count = count + 1
             if count == 100:

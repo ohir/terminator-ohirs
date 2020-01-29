@@ -295,7 +295,7 @@ class ConfigBase(Borg):
     plugins = None
     layouts = None
     command_line_options = None
-    _curlayoutname = 'default'
+    _curlayoutname = None
     _dirty = None
     _nosave = None
     _building = None
@@ -333,6 +333,8 @@ class ConfigBase(Borg):
             self.plugins = {}
         if self.layouts is None:
             self.layouts = self.cfgdict['layouts']
+        if self._curlayoutname is None:
+            self._curlayoutname = 'default'
 
     # XXX prefseditor Cancel feature preparation
     def get_undo_tree(self):
