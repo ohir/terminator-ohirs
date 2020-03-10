@@ -1,3 +1,8 @@
+# NOT WORKING BRANCH. 
+This is postponed refactoring toward new config and py3.
+No time to finish it now. If you would like to pick it up
+contact me and I'll try answer questions.
+
 ## Toward Terminator2 (from Terminator 1.91)
 
 This repo contains Terminator in my (ohir's) version. It is based on v1.91 python2 release. 
